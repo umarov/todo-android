@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Todo</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="new_todo_list_hint_text">Enter the name of the list</string>
+    <string name="new_todo_list_create_list_save_button_text">Save</string>
+    <string name="todo_list_add_todo_button_text">Create a To-do List</string>
+    <string name="todo_list_add_todo_item_button_text">Add item</string>
+    <string name="todo_list_add_todo_item_cancel_button_text">Cancel</string>
+    <string name="todo_list_item_save_todo_item_edit">Save todo item edit</string>
+</resources>
