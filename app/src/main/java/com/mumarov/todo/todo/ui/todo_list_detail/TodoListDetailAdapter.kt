@@ -21,60 +21,101 @@ import android.view.inputmethod.InputMethodManager
 class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context): RecyclerView.Adapter<TodoListDetailAdapter.ViewHolder>() {
   private val onTodoItemUpdated = PublishSubject.create<TodoItem>()
   private val onTodoItemDeleted = PublishSubject.create<TodoItem>()
+  private val onTodoItemCreated = PublishSubject.create<TodoItem>()
 
   override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
     todoItems?.let {
       val todoItem = todoItems[position]
-      viewHolder.todoListDetailItemTextView.text = todoItem.title
-      if (todoItem.completed) {
-        viewHolder.todoListDetailItemTextView.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
-      } else {
-        viewHolder.todoListDetailItemTextView.paintFlags = 0
-      }
-      viewHolder.todoListDetailItemCheckBox.isChecked = todoItem.completed
 
-      viewHolder.todoListDetailItemTextView.setOnClickListener {
-        viewHolder.todoListDetailItemEditTextLayout.setText(todoItem.title)
+      if (todoItem.title.isEmpty()) {
+        viewHolder.todoListDetailItemTextView.performClick()
 
-        viewHolder.todoListDetailItemViewLayout.visibility = View.GONE
-        viewHolder.todoListDetailItemEditLayout.visibility = View.VISIBLE
+        viewHolder.toggleEditCreate()
 
         viewHolder.todoListDetailItemEditTextLayout.requestFocus()
         openKeyboard()
 
         viewHolder.todoListDetailItemEditTextLayout.setOnFocusChangeListener { _, hasFocus ->
           if (!hasFocus) {
-            viewHolder.todoListDetailItemEditSaveButton.performClick()
+            createTodoItem(viewHolder, todoItem)
           }
         }
 
         viewHolder.todoListDetailItemEditSaveButton.setOnClickListener {
-          val textValue = viewHolder.todoListDetailItemEditTextLayout.text.toString()
+          createTodoItem(viewHolder, todoItem)
+        }
+      } else {
+        viewHolder.todoListDetailItemTextView.text = todoItem.title
+        if (todoItem.completed) {
+          viewHolder.todoListDetailItemTextView.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+        } else {
+          viewHolder.todoListDetailItemTextView.paintFlags = 0
+        }
+        viewHolder.todoListDetailItemCheckBox.isChecked = todoItem.completed
 
-          if (textValue != todoItem.title) {
-            todoItem.title = viewHolder.todoListDetailItemEditTextLayout.text.toString()
-            onTodoItemUpdated.onNext(todoItem)
-          }
+        setUpItemTextViewListener(viewHolder, todoItem)
 
-          viewHolder.todoListDetailItemViewLayout.visibility = View.VISIBLE
-          viewHolder.todoListDetailItemEditLayout.visibility = View.GONE
-          closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
+        viewHolder.todoListDetailDeletItemButton.setOnClickListener {
+          onTodoItemDeleted.onNext(todoItem)
+        }
+
+        viewHolder.todoListDetailItemCheckBox.setOnCheckedChangeListener { _, isChecked ->
+          todoItem.completed = isChecked
+          onTodoItemUpdated.onNext(todoItem)
         }
       }
 
-      viewHolder.todoListDetailDeletItemButton.setOnClickListener {
-        onTodoItemDeleted.onNext(todoItem)
-      }
-
-      viewHolder.todoListDetailItemCheckBox.setOnCheckedChangeListener { _, isChecked ->
-        todoItem.completed = isChecked
-        onTodoItemUpdated.onNext(todoItem)
-      }
     }
   }
 
   fun getTodoItemUpdated(): PublishSubject<TodoItem> = onTodoItemUpdated
   fun getTodoItemDeleted(): PublishSubject<TodoItem> = onTodoItemDeleted
+  fun getTodoItemCreated(): PublishSubject<TodoItem> = onTodoItemCreated
+
+  private fun setUpItemTextViewListener(viewHolder: ViewHolder, todoItem: TodoItem) {
+    viewHolder.todoListDetailItemTextView.setOnClickListener {
+      viewHolder.todoListDetailItemEditTextLayout.setText(todoItem.title)
+
+      viewHolder.toggleEditCreate()
+
+      viewHolder.todoListDetailItemEditTextLayout.requestFocus()
+      openKeyboard()
+
+      viewHolder.todoListDetailItemEditTextLayout.setOnFocusChangeListener { _, hasFocus ->
+        if (!hasFocus) {
+          updateTodoItem(viewHolder, todoItem)
+        }
+      }
+
+      viewHolder.todoListDetailItemEditSaveButton.setOnClickListener {
+        updateTodoItem(viewHolder, todoItem)
+      }
+    }
+  }
+
+  private fun updateTodoItem(viewHolder: ViewHolder, todoItem: TodoItem) {
+    val textValue = viewHolder.todoListDetailItemEditTextLayout.text.toString()
+
+    if (textValue != todoItem.title) {
+      todoItem.title = viewHolder.todoListDetailItemEditTextLayout.text.toString()
+      onTodoItemUpdated.onNext(todoItem)
+    }
+
+    closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
+    viewHolder.toggleEditCreate()
+  }
+
+  private fun createTodoItem(viewHolder: ViewHolder, todoItem: TodoItem) {
+    val textValue = viewHolder.todoListDetailItemEditTextLayout.text.toString()
+
+    if (textValue != todoItem.title) {
+      todoItem.title = viewHolder.todoListDetailItemEditTextLayout.text.toString()
+      onTodoItemCreated.onNext(todoItem)
+    }
+
+    closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
+    viewHolder.toggleEditCreate()
+  }
 
   private fun openKeyboard() {
     val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -131,6 +172,17 @@ class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context
 
     val todoListDetailItemViewLayout: ConstraintLayout by lazy {
       itemView.findViewById(R.id.todo_list_item_view_layout) as ConstraintLayout
+    }
+
+    fun toggleEditCreate() {
+      if (todoListDetailItemViewLayout.visibility == View.VISIBLE &&
+              todoListDetailItemEditLayout.visibility == View.GONE) {
+        todoListDetailItemViewLayout.visibility = View.GONE
+        todoListDetailItemEditLayout.visibility = View.VISIBLE
+      } else {
+        todoListDetailItemViewLayout.visibility = View.VISIBLE
+        todoListDetailItemEditLayout.visibility = View.GONE
+      }
     }
   }
 }

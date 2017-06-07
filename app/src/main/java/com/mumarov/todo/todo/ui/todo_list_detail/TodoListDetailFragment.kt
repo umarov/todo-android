@@ -20,6 +20,7 @@ import io.reactivex.disposables.Disposable
 class TodoListDetailFragment : LifecycleFragment() {
   lateinit var todoItemUpdateDisposable: Disposable
   lateinit var todoItemDeleteDisposable: Disposable
+  lateinit var todoItemCreateDisposable: Disposable
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View {
@@ -36,7 +37,10 @@ class TodoListDetailFragment : LifecycleFragment() {
     val todoListId = arguments.getLong(MainActivity.TODO_LIST_ID)
 
     todoListDetailViewModel.getTodoListItems(todoListId).observe(this, Observer<List<TodoItem>> {
-      val todoListDetailAdapter = TodoListDetailAdapter(it, context)
+      val newTodoItem = TodoItem(0, "", "", false, todoListId)
+      val todoItems = it?.toMutableList()
+      todoItems?.add(newTodoItem)
+      val todoListDetailAdapter = TodoListDetailAdapter(todoItems, context)
       todoListItemsRecyclerView.adapter = todoListDetailAdapter
       todoListItemsRecyclerView.layoutManager = LinearLayoutManager(this.context)
 
@@ -46,6 +50,10 @@ class TodoListDetailFragment : LifecycleFragment() {
 
       todoItemDeleteDisposable = todoListDetailAdapter.getTodoItemDeleted().subscribe {
         todoListDetailViewModel.deleteTodoItem(it)
+      }
+
+      todoItemCreateDisposable = todoListDetailAdapter.getTodoItemCreated().subscribe {
+        todoListDetailViewModel.createTodoItem(listOf(it))
       }
     })
 

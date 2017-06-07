@@ -56,23 +56,21 @@ class TodoListOverviewFragment : LifecycleFragment() {
     newTodoBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
     newTodoBottomSheetBehavior.peekHeight = 0
 
-    if (savedInstanceState == null) {
-      todoListOverViewViewModel.getTodoLists().observe(this, Observer<List<TodoList>> { todoLists ->
-        val todoListOverviewAdapter = TodoListOverviewAdapter(todoLists, context)
-        todoLists?.forEach { todoList ->
-          todoListOverViewViewModel.getTodoListItems(todoList.id).observe(this, Observer<List<TodoItem>> {
-            todoList.listItems = it as List<TodoItem>
-            todoListOverviewAdapter.notifyItemChanged(todoLists.indexOf(todoList))
-          })
-        }
-
-        todoListClickedDisposable = todoListOverviewAdapter.getClickEvent().subscribe({
-          todoListListener.OnTodoListClicked(it)
+    todoListOverViewViewModel.getTodoLists().observe(this, Observer<List<TodoList>> { todoLists ->
+      val todoListOverviewAdapter = TodoListOverviewAdapter(todoLists, context)
+      todoLists?.forEach { todoList ->
+        todoListOverViewViewModel.getTodoListItems(todoList.id).observe(this, Observer<List<TodoItem>> {
+          todoList.listItems = it as List<TodoItem>
+          todoListOverviewAdapter.notifyItemChanged(todoLists.indexOf(todoList))
         })
-        todoListsRecyclerView.adapter = todoListOverviewAdapter
+      }
 
+      todoListClickedDisposable = todoListOverviewAdapter.getClickEvent().subscribe({
+        todoListListener.OnTodoListClicked(it)
       })
-    }
+      todoListsRecyclerView.adapter = todoListOverviewAdapter
+
+    })
 
     addTodoButton.setOnClickListener {
       newTodoBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED

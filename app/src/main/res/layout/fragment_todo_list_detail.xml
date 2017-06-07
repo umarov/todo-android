@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent">
+    android:background="@color/yellow">
 
     <Button
         android:id="@+id/todo_list_add_todo_item_button"
@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:text="@string/todo_list_add_todo_item_button_text"
+        android:theme="@style/PrimaryFlatButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp" />
@@ -51,6 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/new_todo_list_create_list_save_button_text"
+            android:theme="@style/PrimaryFlatButton"
             android:layout_marginEnd="8dp"
             android:layout_gravity="center"
             android:gravity="center"/>
@@ -60,7 +62,7 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/todo_list_items_recycler_view"
-        android:layout_width="400dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:scrollbars="vertical"
 
@@ -69,8 +71,7 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:layout_editor_absoluteX="-115dp">
+        app:layout_constraintBottom_toBottomOf="parent">
 
     </android.support.v7.widget.RecyclerView>
 
