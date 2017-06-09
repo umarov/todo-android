@@ -20,6 +20,12 @@ data class TodoItem(@PrimaryKey(autoGenerate = true)
                     var completed: Boolean,
                     @ColumnInfo(name = "todo_list_id")
                     var todoListId: Long) {
+
+  companion object {
+    const val CREATE = 0
+    const val UPDATE = 1
+    const val DELETE = 2
+  }
 }
 
 

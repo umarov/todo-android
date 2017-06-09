@@ -1,11 +1,12 @@
 package com.mumarov.todo.todo
 
 import android.os.Bundle
+import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.CardView
 import android.support.v7.widget.Toolbar
 import com.mumarov.todo.todo.database.entities.TodoList
 import com.mumarov.todo.todo.ui.todo_list_detail.TodoListDetailFragment
-import com.mumarov.todo.todo.ui.todo_list_detail.TodoListDetailFragment.Companion.TODO_LIST_ID
 import com.mumarov.todo.todo.ui.todo_list_overview.TodoListOverviewFragment
 
 class MainActivity : AppCompatActivity(), TodoListOverviewFragment.TodoListListener {
@@ -23,24 +24,36 @@ class MainActivity : AppCompatActivity(), TodoListOverviewFragment.TodoListListe
             .commit()
   }
 
-  override fun OnTodoListClicked(todoList: TodoList) {
-    goToDetailFragment(todoList)
+  override fun OnTodoListClicked(todoList: TodoList, cardView: CardView, toolbar: Toolbar) {
+    goToDetailFragment(todoList, cardView, toolbar)
   }
 
   override fun OnTodoListCreated(todoList: TodoList) {
-    goToDetailFragment(todoList)
+    goToDetailFragment(todoList, null, null)
   }
 
-  private fun goToDetailFragment(todoList: TodoList) {
+  private fun goToDetailFragment(todoList: TodoList,
+                                 cardView: CardView? = null,
+                                 toolbar: Toolbar? = null) {
     val todoListDetailFragment = TodoListDetailFragment()
     val args = Bundle()
     args.putLong(TODO_LIST_ID, todoList.id)
     todoListDetailFragment.arguments = args
 
-    supportFragmentManager
+    var transaction = supportFragmentManager
             .beginTransaction()
             .addToBackStack("Todo List Detail")
-            .replace(R.id.main_activity_content, todoListDetailFragment, "Todo List Detail")
+
+    cardView?.let {
+      transaction = transaction.addSharedElement(cardView, ViewCompat.getTransitionName(cardView))
+    }
+
+    toolbar?.let {
+      transaction = transaction.addSharedElement(toolbar, ViewCompat.getTransitionName(toolbar))
+    }
+
+    transaction
+            .replace(R.id.main_activity_content, todoListDetailFragment)
             .commit()
 
     supportActionBar?.setDisplayHomeAsUpEnabled(true)

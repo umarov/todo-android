@@ -13,15 +13,16 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.mumarov.todo.todo.R
 import com.mumarov.todo.todo.database.entities.TodoItem
-import io.reactivex.subjects.PublishSubject
 import android.os.IBinder
 import android.view.inputmethod.InputMethodManager
+import com.mumarov.todo.todo.util.closeKeyboard
+import com.mumarov.todo.todo.util.openKeyboard
 
 
-class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context): RecyclerView.Adapter<TodoListDetailAdapter.ViewHolder>() {
-  private val onTodoItemUpdated = PublishSubject.create<TodoItem>()
-  private val onTodoItemDeleted = PublishSubject.create<TodoItem>()
-  private val onTodoItemCreated = PublishSubject.create<TodoItem>()
+class TodoListDetailAdapter(
+        val todoItems: List<TodoItem>?,
+        val context: Context,
+        inline val onTodoItemAction: (todoItem: TodoItem, actionType: Int) -> Unit): RecyclerView.Adapter<TodoListDetailAdapter.ViewHolder>() {
 
   override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
     todoItems?.let {
@@ -33,7 +34,7 @@ class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context
         viewHolder.toggleEditCreate()
 
         viewHolder.todoListDetailItemEditTextLayout.requestFocus()
-        openKeyboard()
+        context.openKeyboard()
 
         viewHolder.todoListDetailItemEditTextLayout.setOnFocusChangeListener { _, hasFocus ->
           if (!hasFocus) {
@@ -56,21 +57,17 @@ class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context
         setUpItemTextViewListener(viewHolder, todoItem)
 
         viewHolder.todoListDetailDeletItemButton.setOnClickListener {
-          onTodoItemDeleted.onNext(todoItem)
+          onTodoItemAction(todoItem, TodoItem.DELETE)
         }
 
         viewHolder.todoListDetailItemCheckBox.setOnCheckedChangeListener { _, isChecked ->
           todoItem.completed = isChecked
-          onTodoItemUpdated.onNext(todoItem)
+          onTodoItemAction(todoItem, TodoItem.UPDATE)
         }
       }
 
     }
   }
-
-  fun getTodoItemUpdated(): PublishSubject<TodoItem> = onTodoItemUpdated
-  fun getTodoItemDeleted(): PublishSubject<TodoItem> = onTodoItemDeleted
-  fun getTodoItemCreated(): PublishSubject<TodoItem> = onTodoItemCreated
 
   private fun setUpItemTextViewListener(viewHolder: ViewHolder, todoItem: TodoItem) {
     viewHolder.todoListDetailItemTextView.setOnClickListener {
@@ -79,7 +76,7 @@ class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context
       viewHolder.toggleEditCreate()
 
       viewHolder.todoListDetailItemEditTextLayout.requestFocus()
-      openKeyboard()
+      context.openKeyboard()
 
       viewHolder.todoListDetailItemEditTextLayout.setOnFocusChangeListener { _, hasFocus ->
         if (!hasFocus) {
@@ -98,10 +95,10 @@ class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context
 
     if (textValue != todoItem.title) {
       todoItem.title = viewHolder.todoListDetailItemEditTextLayout.text.toString()
-      onTodoItemUpdated.onNext(todoItem)
+      onTodoItemAction(todoItem, TodoItem.UPDATE)
     }
 
-    closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
+    context.closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
     viewHolder.toggleEditCreate()
   }
 
@@ -110,22 +107,11 @@ class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context
 
     if (textValue != todoItem.title) {
       todoItem.title = viewHolder.todoListDetailItemEditTextLayout.text.toString()
-      onTodoItemCreated.onNext(todoItem)
+      onTodoItemAction(todoItem, TodoItem.CREATE)
     }
 
-    closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
+    context.closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
     viewHolder.toggleEditCreate()
-  }
-
-  private fun openKeyboard() {
-    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-  }
-
-  private fun closeKeyboard(windowToken: IBinder) {
-    val imm = context.getSystemService(
-            Context.INPUT_METHOD_SERVICE) as InputMethodManager
-    imm.hideSoftInputFromWindow(windowToken, 0)
   }
 
   override fun getItemCount(): Int {
@@ -143,7 +129,6 @@ class TodoListDetailAdapter(val todoItems: List<TodoItem>?, val context: Context
 
     return ViewHolder(todoListDetailItems)
   }
-
 
   companion object class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val todoListDetailItemTextView: TextView by lazy {

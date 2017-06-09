@@ -17,6 +17,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/Base.ThemeOverlay.AppCompat.Dark"
+        android:transitionName="@string/todo_list_toolbar_transition_name"
         app:titleTextColor="@android:color/white" />
 
 

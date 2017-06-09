@@ -13,6 +13,7 @@ class TodoListDetailViewModel constructor(application: Application) : AndroidVie
   init {
     (application as TodoApplication).appComponent.inject(this)
   }
+
   fun getTodoListItems(todoListId: Long) = db.todoItemDao().getTodoItemsForTodoList(todoListId)
 
   fun createTodoItem(todoItems: List<TodoItem>) = Thread(Runnable { db.todoItemDao().insertTodoItems(todoItems) }).start()

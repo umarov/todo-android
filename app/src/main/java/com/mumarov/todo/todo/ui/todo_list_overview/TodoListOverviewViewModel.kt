@@ -2,6 +2,8 @@ package com.mumarov.todo.todo.ui.todo_list_overview
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.mumarov.todo.todo.TodoApplication
 import com.mumarov.todo.todo.database.TodoAppDatabase
@@ -16,30 +18,27 @@ class TodoListOverviewViewModel constructor(application: Application) : AndroidV
     (application as TodoApplication).appComponent.inject(this)
   }
 
-
   fun getTodoLists() = db.todoListDao().getTodoLists()
 
-  fun createTodoList(todoList: TodoList, afterCreate: (todoListId: Long) -> Unit) {
+  inline fun createTodoList(todoList: TodoList, crossinline afterCreate: (todoListId: Long) -> Unit) {
     Thread(Runnable {
       val todoListId = db.todoListDao().insertTodoList(todoList)
-      afterCreate(todoListId)
+
+      Handler(Looper.getMainLooper()).post { afterCreate(todoListId) }
+    }).start()
+  }
+
+  inline fun deleteTodoList(todoList: TodoList, crossinline afterDelete: () -> Unit) {
+    Thread(Runnable {
+      todoList.listItems.forEach {
+        db.todoItemDao().deleteTodoItem(it)
+      }
+
+      db.todoListDao().deleteTodoList(todoList)
+
+      Handler(Looper.getMainLooper()).post { afterDelete() }
     }).start()
   }
 
   fun getTodoListItems(todoListId: Long) = db.todoItemDao().getTodoItemsForTodoList(todoListId)
-
-  fun createTodoListWithItems(todoList: TodoList, todoListItems: List<TodoItem>) {
-    Thread(Runnable {
-      db.beginTransaction()
-      val insertedTodoListId = db.todoListDao().insertTodoList(todoList)
-      Log.d("Created todo list id", insertedTodoListId.toString())
-      todoListItems.forEach {
-        it.todoListId = insertedTodoListId
-      }
-      val itemIds = db.todoItemDao().insertTodoItems(todoListItems)
-      Log.d("Created todo item ids", itemIds.toString())
-
-      db.endTransaction()
-    }).start()
-  }
 }

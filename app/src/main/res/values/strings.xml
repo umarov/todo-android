@@ -9,4 +9,7 @@
     <string name="todo_list_add_todo_item_button_text">Add item</string>
     <string name="todo_list_add_todo_item_cancel_button_text">Cancel</string>
     <string name="todo_list_item_save_todo_item_edit">Save todo item edit</string>
+    <string name="todo_list_card_view_transition_name">todo_list_card_view</string>
+    <string name="todo_list_toolbar_transition_name">todo_list_toolbar_transition_name</string>
+    <string name="todo_list_menu_delete_to_do_list">Delete list</string>
 </resources>
