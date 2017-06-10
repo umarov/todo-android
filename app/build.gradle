@@ -60,8 +60,6 @@ dependencies {
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
 
-    compile "io.reactivex.rxjava2:rxjava:2.1.0"
-
     testCompile "android.arch.persistence.room:testing:$arch_version"
 
     testCompile 'junit:junit:4.12'
@@ -70,6 +68,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    implementation 'com.android.support:support-v4:25.3.1'
-    implementation 'com.android.support:recyclerview-v7:25.3.1'
+    implementation "com.android.support:support-v4:$support_version"
+    implementation "com.android.support:recyclerview-v7:$support_version"
 }
