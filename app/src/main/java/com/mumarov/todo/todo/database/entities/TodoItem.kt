@@ -21,6 +21,9 @@ data class TodoItem(@PrimaryKey(autoGenerate = true)
                     @ColumnInfo(name = "todo_list_id")
                     var todoListId: Long) {
 
+  @Ignore
+  var viewId = 0
+
   companion object {
     const val CREATE = 0
     const val UPDATE = 1

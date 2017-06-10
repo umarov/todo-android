@@ -23,41 +23,40 @@ import com.mumarov.todo.todo.R
 import com.mumarov.todo.todo.database.entities.TodoItem
 import com.mumarov.todo.todo.database.entities.TodoList
 import com.mumarov.todo.todo.util.closeKeyboard
-import com.mumarov.todo.todo.util.openKeyboard
 
 
 class TodoListOverviewFragment : LifecycleFragment() {
   interface TodoListListener {
-    fun OnTodoListClicked(todoList: TodoList, cardView: CardView, toolbar: Toolbar)
+    fun OnTodoListClicked(todoList: TodoList, cardView: CardView)
     fun OnTodoListCreated(todoList: TodoList)
   }
 
   lateinit var todoListListener: TodoListListener
 
   val todoListOverviewAdapter: TodoListOverviewAdapter by lazy {
-    TodoListOverviewAdapter(emptyList(), context, {
-      todoListOverViewViewModel.deleteTodoList(it) {
-        todoListOverviewAdapter.notifyDataSetChanged()
-      }
-    }) { todoList, cardView, toolbar ->
-      todoListListener.OnTodoListClicked(todoList, cardView, toolbar)
-    }
+    TodoListOverviewAdapter(emptyList(), context, onTodoListDeleted, todoListListener::OnTodoListClicked)
   }
 
   val todoListOverViewViewModel: TodoListOverviewViewModel by lazy {
     ViewModelProviders.of(this).get(TodoListOverviewViewModel::class.java)
   }
 
+  val onTodoListDeleted = { todoList: TodoList ->
+    todoListOverViewViewModel.deleteTodoList(todoList) {
+      todoListOverviewAdapter.notifyDataSetChanged()
+    }
+  }
+
   override fun onCreateView(inflater: LayoutInflater,
                             container: ViewGroup?,
                             savedInstanceState: Bundle?): View {
-    val todoListOverviewFragment = inflater.inflate(R.layout.fragment_todo_list_overview, container, false)
+    val view = inflater.inflate(R.layout.fragment_todo_list_overview, container, false)
 
-    val addTodoButton = todoListOverviewFragment.findViewById(R.id.todo_list_add_todo_button) as Button
-    val createTodoButton = todoListOverviewFragment.findViewById(R.id.new_todo_list_create_list_button) as Button
-    val todoListsRecyclerView = todoListOverviewFragment.findViewById(R.id.todo_lists_recycler_view) as RecyclerView
-    val newTodoListTextInputLayout = todoListOverviewFragment.findViewById(R.id.new_todo_list_text_input_layout) as TextInputLayout
-    val newTodoBottomSheet = todoListOverviewFragment.findViewById(R.id.new_todo_list_bottom_sheet)
+    val addTodoButton = view.findViewById(R.id.todo_list_add_todo_button) as Button
+    val createTodoButton = view.findViewById(R.id.new_todo_list_create_list_button) as Button
+    val todoListsRecyclerView = view.findViewById(R.id.todo_lists_recycler_view) as RecyclerView
+    val newTodoListTextInputLayout = view.findViewById(R.id.new_todo_list_text_input_layout) as TextInputLayout
+    val newTodoBottomSheet = view.findViewById(R.id.new_todo_list_bottom_sheet)
 
     val newTodoBottomSheetBehavior = BottomSheetBehavior.from(newTodoBottomSheet)
 
@@ -105,7 +104,7 @@ class TodoListOverviewFragment : LifecycleFragment() {
 
     }
 
-    return todoListOverviewFragment
+    return view
   }
 
   override fun onAttach(activity: Activity?) {

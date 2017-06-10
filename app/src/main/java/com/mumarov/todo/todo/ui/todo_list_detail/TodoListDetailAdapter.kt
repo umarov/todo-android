@@ -13,8 +13,6 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.mumarov.todo.todo.R
 import com.mumarov.todo.todo.database.entities.TodoItem
-import android.os.IBinder
-import android.view.inputmethod.InputMethodManager
 import com.mumarov.todo.todo.util.closeKeyboard
 import com.mumarov.todo.todo.util.openKeyboard
 
@@ -47,11 +45,13 @@ class TodoListDetailAdapter(
         }
       } else {
         viewHolder.todoListDetailItemTextView.text = todoItem.title
+
         if (todoItem.completed) {
           viewHolder.todoListDetailItemTextView.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         } else {
           viewHolder.todoListDetailItemTextView.paintFlags = 0
         }
+
         viewHolder.todoListDetailItemCheckBox.isChecked = todoItem.completed
 
         setUpItemTextViewListener(viewHolder, todoItem)
@@ -91,23 +91,23 @@ class TodoListDetailAdapter(
   }
 
   private fun updateTodoItem(viewHolder: ViewHolder, todoItem: TodoItem) {
-    val textValue = viewHolder.todoListDetailItemEditTextLayout.text.toString()
-
-    if (textValue != todoItem.title) {
-      todoItem.title = viewHolder.todoListDetailItemEditTextLayout.text.toString()
-      onTodoItemAction(todoItem, TodoItem.UPDATE)
+    todoItemAction(viewHolder, todoItem) {
+      onTodoItemAction(it, TodoItem.UPDATE)
     }
-
-    context.closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
-    viewHolder.toggleEditCreate()
   }
 
   private fun createTodoItem(viewHolder: ViewHolder, todoItem: TodoItem) {
+    todoItemAction(viewHolder, todoItem) {
+      onTodoItemAction(it, TodoItem.CREATE)
+    }
+  }
+
+  private inline fun todoItemAction(viewHolder: ViewHolder, todoItem: TodoItem, action: (todoItem: TodoItem) -> Unit ) {
     val textValue = viewHolder.todoListDetailItemEditTextLayout.text.toString()
 
     if (textValue != todoItem.title) {
       todoItem.title = viewHolder.todoListDetailItemEditTextLayout.text.toString()
-      onTodoItemAction(todoItem, TodoItem.CREATE)
+      action(todoItem)
     }
 
     context.closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
@@ -130,7 +130,7 @@ class TodoListDetailAdapter(
     return ViewHolder(todoListDetailItems)
   }
 
-  companion object class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+  class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val todoListDetailItemTextView: TextView by lazy {
       itemView.findViewById(R.id.todo_list_detail_item_text_view) as TextView
     }

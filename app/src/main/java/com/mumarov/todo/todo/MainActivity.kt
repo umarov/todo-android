@@ -24,17 +24,16 @@ class MainActivity : AppCompatActivity(), TodoListOverviewFragment.TodoListListe
             .commit()
   }
 
-  override fun OnTodoListClicked(todoList: TodoList, cardView: CardView, toolbar: Toolbar) {
-    goToDetailFragment(todoList, cardView, toolbar)
+  override fun OnTodoListClicked(todoList: TodoList, cardView: CardView) {
+    goToDetailFragment(todoList, cardView)
   }
 
   override fun OnTodoListCreated(todoList: TodoList) {
-    goToDetailFragment(todoList, null, null)
+    goToDetailFragment(todoList, null)
   }
 
   private fun goToDetailFragment(todoList: TodoList,
-                                 cardView: CardView? = null,
-                                 toolbar: Toolbar? = null) {
+                                 cardView: CardView? = null) {
     val todoListDetailFragment = TodoListDetailFragment()
     val args = Bundle()
     args.putLong(TODO_LIST_ID, todoList.id)
@@ -46,10 +45,6 @@ class MainActivity : AppCompatActivity(), TodoListOverviewFragment.TodoListListe
 
     cardView?.let {
       transaction = transaction.addSharedElement(cardView, ViewCompat.getTransitionName(cardView))
-    }
-
-    toolbar?.let {
-      transaction = transaction.addSharedElement(toolbar, ViewCompat.getTransitionName(toolbar))
     }
 
     transaction
