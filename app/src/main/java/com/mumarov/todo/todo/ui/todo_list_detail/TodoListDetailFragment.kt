@@ -45,7 +45,9 @@ class TodoListDetailFragment : LifecycleFragment() {
       }
 
       todoListItemsRecyclerView.adapter = todoListDetailAdapter
-      todoListItemsRecyclerView.layoutManager = LinearLayoutManager(this.context)
+      val layoutManager = LinearLayoutManager(this.context)
+      layoutManager.stackFromEnd = true
+      todoListItemsRecyclerView.layoutManager = layoutManager
     })
 
     return todoListOverviewFragment

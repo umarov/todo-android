@@ -20,4 +20,7 @@ interface TodoItemDao {
 
   @Delete
   fun deleteTodoItem(todoItem: TodoItem)
+
+  @Delete
+  fun deleteTodoItems(todoItems: List<TodoItem>)
 }

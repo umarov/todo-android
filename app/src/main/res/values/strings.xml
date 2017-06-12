@@ -12,4 +12,5 @@
     <string name="todo_list_card_view_transition_name">todo_list_card_view</string>
     <string name="todo_list_toolbar_transition_name">todo_list_toolbar_transition_name</string>
     <string name="todo_list_menu_delete_to_do_list">Delete list</string>
+    <string name="todo_item_enter_a_new_item">Enter a new item</string>
 </resources>

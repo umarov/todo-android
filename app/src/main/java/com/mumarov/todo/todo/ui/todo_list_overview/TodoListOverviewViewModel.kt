@@ -20,23 +20,20 @@ class TodoListOverviewViewModel constructor(application: Application) : AndroidV
 
   fun getTodoLists() = db.todoListDao().getTodoLists()
 
-  inline fun createTodoList(todoList: TodoList, crossinline afterCreate: (todoListId: Long) -> Unit) {
+  inline fun createTodoList(name: String, crossinline afterCreate: (todoList: TodoList) -> Unit) {
     Thread(Runnable {
+      val todoList = TodoList(0, name)
       val todoListId = db.todoListDao().insertTodoList(todoList)
+      todoList.id = todoListId
 
-      Handler(Looper.getMainLooper()).post { afterCreate(todoListId) }
+      Handler(Looper.getMainLooper()).post { afterCreate(todoList) }
     }).start()
   }
 
-  inline fun deleteTodoList(todoList: TodoList, crossinline afterDelete: () -> Unit) {
+  fun deleteTodoList(todoList: TodoList) {
     Thread(Runnable {
-      todoList.listItems.forEach {
-        db.todoItemDao().deleteTodoItem(it)
-      }
-
+      db.todoItemDao().deleteTodoItems(todoList.listItems)
       db.todoListDao().deleteTodoList(todoList)
-
-      Handler(Looper.getMainLooper()).post { afterDelete() }
     }).start()
   }
 

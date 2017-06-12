@@ -9,11 +9,11 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.CheckBox
 import android.widget.TextView
 import com.mumarov.todo.todo.R
 import com.mumarov.todo.todo.database.entities.TodoItem
-import com.mumarov.todo.todo.util.closeKeyboard
 import com.mumarov.todo.todo.util.openKeyboard
 
 
@@ -32,12 +32,18 @@ class TodoListDetailAdapter(
         viewHolder.toggleEditCreate()
 
         viewHolder.todoListDetailItemEditTextLayout.requestFocus()
-        context.openKeyboard()
 
         viewHolder.todoListDetailItemEditTextLayout.setOnFocusChangeListener { _, hasFocus ->
           if (!hasFocus) {
             createTodoItem(viewHolder, todoItem)
           }
+        }
+
+        viewHolder.todoListDetailItemEditTextLayout.setOnEditorActionListener{ _, keyCode, _ ->
+          if (keyCode == EditorInfo.IME_ACTION_DONE) {
+            createTodoItem(viewHolder, todoItem)
+          }
+          true
         }
 
         viewHolder.todoListDetailItemEditSaveButton.setOnClickListener {
@@ -56,7 +62,7 @@ class TodoListDetailAdapter(
 
         setUpItemTextViewListener(viewHolder, todoItem)
 
-        viewHolder.todoListDetailDeletItemButton.setOnClickListener {
+        viewHolder.todoListDetailDeleteItemButton.setOnClickListener {
           onTodoItemAction(todoItem, TodoItem.DELETE)
         }
 
@@ -82,6 +88,13 @@ class TodoListDetailAdapter(
         if (!hasFocus) {
           updateTodoItem(viewHolder, todoItem)
         }
+      }
+
+      viewHolder.todoListDetailItemEditTextLayout.setOnEditorActionListener { _, keyCode, _ ->
+        if (keyCode == EditorInfo.IME_ACTION_DONE) {
+          updateTodoItem(viewHolder, todoItem)
+        }
+        true
       }
 
       viewHolder.todoListDetailItemEditSaveButton.setOnClickListener {
@@ -110,7 +123,6 @@ class TodoListDetailAdapter(
       action(todoItem)
     }
 
-    context.closeKeyboard(viewHolder.todoListDetailItemEditTextLayout.windowToken)
     viewHolder.toggleEditCreate()
   }
 
@@ -151,7 +163,7 @@ class TodoListDetailAdapter(
       itemView.findViewById(R.id.todo_list_item_edit_input_edit_text) as TextInputEditText
     }
 
-    val todoListDetailDeletItemButton: AppCompatImageButton by lazy {
+    val todoListDetailDeleteItemButton: AppCompatImageButton by lazy {
       itemView.findViewById(R.id.todo_list_item_delete_button) as AppCompatImageButton
     }
 

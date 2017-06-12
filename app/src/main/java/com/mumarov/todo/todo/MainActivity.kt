@@ -1,10 +1,12 @@
 package com.mumarov.todo.todo
 
 import android.os.Bundle
+import android.support.transition.AutoTransition
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.CardView
 import android.support.v7.widget.Toolbar
+import android.transition.*
 import com.mumarov.todo.todo.database.entities.TodoList
 import com.mumarov.todo.todo.ui.todo_list_detail.TodoListDetailFragment
 import com.mumarov.todo.todo.ui.todo_list_overview.TodoListOverviewFragment
@@ -35,6 +37,9 @@ class MainActivity : AppCompatActivity(), TodoListOverviewFragment.TodoListListe
   private fun goToDetailFragment(todoList: TodoList,
                                  cardView: CardView? = null) {
     val todoListDetailFragment = TodoListDetailFragment()
+    todoListDetailFragment.enterTransition = Slide()
+    todoListDetailFragment.exitTransition = Slide()
+
     val args = Bundle()
     args.putLong(TODO_LIST_ID, todoList.id)
     todoListDetailFragment.arguments = args
@@ -43,9 +48,11 @@ class MainActivity : AppCompatActivity(), TodoListOverviewFragment.TodoListListe
             .beginTransaction()
             .addToBackStack("Todo List Detail")
 
-    cardView?.let {
-      transaction = transaction.addSharedElement(cardView, ViewCompat.getTransitionName(cardView))
-    }
+//    cardView?.let {
+//      TODO("Until I figure this shared element transitions")
+//      transaction = transaction.addSharedElement(cardView, ViewCompat.getTransitionName(cardView))
+//    }
+
 
     transaction
             .replace(R.id.main_activity_content, todoListDetailFragment)

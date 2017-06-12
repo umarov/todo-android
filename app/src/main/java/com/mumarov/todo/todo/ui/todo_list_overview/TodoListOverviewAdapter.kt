@@ -6,6 +6,7 @@ import android.support.v7.widget.AppCompatCheckBox
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,37 +17,39 @@ import com.mumarov.todo.todo.database.entities.TodoItem
 import com.mumarov.todo.todo.database.entities.TodoList
 
 class TodoListOverviewAdapter(
-        var todoLists: List<TodoList>,
+        var todoLists: MutableList<TodoList>,
         val context: Context,
         inline val onTodoDeleted: (todoList: TodoList) -> Unit,
-        inline val onTodoClicked: (todoList: TodoList,
-                                   cardView: CardView) -> Unit): RecyclerView.Adapter<TodoListOverviewAdapter.ViewHolder>() {
+        inline val onTodoClicked: (
+                todoList: TodoList,
+                index: Int
+        ) -> Unit): RecyclerView.Adapter<TodoListOverviewAdapter.ViewHolder>() {
   override fun onBindViewHolder(viewHolder: TodoListOverviewAdapter.ViewHolder, position: Int) {
     todoLists.let {
       val todoList = todoLists[position]
       viewHolder.titleTextView.text = todoList.name
 
-      todoList.listItems.forEach {
+      viewHolder.cardLinearLayout.removeAllViewsInLayout()
 
+      todoList.listItems.forEach {
         createCheckBoxes(viewHolder, it)
       }
 
       viewHolder.cardView.setOnClickListener {
-        onTodoClicked(todoList, viewHolder.cardView)
+        onTodoClicked(todoList, todoLists.indexOf(todoList))
       }
 
       viewHolder.toolbar.setOnClickListener {
-        onTodoClicked(todoList, viewHolder.cardView)
+        onTodoClicked(todoList, todoLists.indexOf(todoList))
       }
-
 
       viewHolder.toolbar.setOnMenuItemClickListener {
         when (it.itemId) {
           R.id.todo_list_delete_menu -> {
             onTodoDeleted(todoList)
+            todoLists.removeAt(todoLists.indexOf(todoList))
           }
         }
-
         true
       }
     }
@@ -55,9 +58,6 @@ class TodoListOverviewAdapter(
   private fun createCheckBoxes(viewHolder: ViewHolder, todoItem: TodoItem) {
     val checkBox = AppCompatCheckBox(context)
     checkBox.text = todoItem.title
-
-    todoItem.viewId = View.generateViewId()
-    checkBox.id = todoItem.viewId
 
     if (todoItem.completed) {
       checkBox.paintFlags = checkBox.paintFlags + Paint.STRIKE_THRU_TEXT_FLAG

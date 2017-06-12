@@ -8,10 +8,10 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.TextInputLayout
-import android.support.v7.widget.Toolbar
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
+import android.util.Log
 
 import android.view.LayoutInflater
 import android.view.View
@@ -32,9 +32,15 @@ class TodoListOverviewFragment : LifecycleFragment() {
   }
 
   lateinit var todoListListener: TodoListListener
+  lateinit var fragmentView: View
+  lateinit var addTodoButton: Button
+  lateinit var createTodoButton: Button
+  lateinit var todoListsRecyclerView: RecyclerView
+  lateinit var newTodoListTextInputLayout: TextInputLayout
+  lateinit var newTodoBottomSheet: View
 
   val todoListOverviewAdapter: TodoListOverviewAdapter by lazy {
-    TodoListOverviewAdapter(emptyList(), context, onTodoListDeleted, todoListListener::OnTodoListClicked)
+    TodoListOverviewAdapter(mutableListOf(), context, onTodoListDeleted, onTodoListClicked)
   }
 
   val todoListOverViewViewModel: TodoListOverviewViewModel by lazy {
@@ -42,21 +48,24 @@ class TodoListOverviewFragment : LifecycleFragment() {
   }
 
   val onTodoListDeleted = { todoList: TodoList ->
-    todoListOverViewViewModel.deleteTodoList(todoList) {
-      todoListOverviewAdapter.notifyDataSetChanged()
-    }
+    todoListOverViewViewModel.deleteTodoList(todoList)
+  }
+
+  val onTodoListClicked = { todoList: TodoList, index: Int ->
+    val cardView = todoListsRecyclerView.getChildAt(index) as CardView
+    todoListListener.OnTodoListClicked(todoList, cardView)
   }
 
   override fun onCreateView(inflater: LayoutInflater,
                             container: ViewGroup?,
                             savedInstanceState: Bundle?): View {
-    val view = inflater.inflate(R.layout.fragment_todo_list_overview, container, false)
+    fragmentView = inflater.inflate(R.layout.fragment_todo_list_overview, container, false)
 
-    val addTodoButton = view.findViewById(R.id.todo_list_add_todo_button) as Button
-    val createTodoButton = view.findViewById(R.id.new_todo_list_create_list_button) as Button
-    val todoListsRecyclerView = view.findViewById(R.id.todo_lists_recycler_view) as RecyclerView
-    val newTodoListTextInputLayout = view.findViewById(R.id.new_todo_list_text_input_layout) as TextInputLayout
-    val newTodoBottomSheet = view.findViewById(R.id.new_todo_list_bottom_sheet)
+    addTodoButton = fragmentView.findViewById(R.id.todo_list_add_todo_button) as Button
+    createTodoButton = fragmentView.findViewById(R.id.new_todo_list_create_list_button) as Button
+    todoListsRecyclerView = fragmentView.findViewById(R.id.todo_lists_recycler_view) as RecyclerView
+    newTodoListTextInputLayout = fragmentView.findViewById(R.id.new_todo_list_text_input_layout) as TextInputLayout
+    newTodoBottomSheet = fragmentView.findViewById(R.id.new_todo_list_bottom_sheet)
 
     val newTodoBottomSheetBehavior = BottomSheetBehavior.from(newTodoBottomSheet)
 
@@ -67,18 +76,25 @@ class TodoListOverviewFragment : LifecycleFragment() {
 
     todoListsRecyclerView.adapter = todoListOverviewAdapter
 
-    if (todoListOverviewAdapter.todoLists.isEmpty()) {
-      todoListOverViewViewModel.getTodoLists().observe(this, Observer<List<TodoList>> { todoLists ->
-        todoListOverviewAdapter.todoLists = todoLists as List<TodoList>
+    todoListOverViewViewModel.getTodoLists().observe(this, Observer<List<TodoList>> { todoLists ->
 
-        todoLists.forEach { todoList ->
-          todoListOverViewViewModel.getTodoListItems(todoList.id).observe(this, Observer<List<TodoItem>> {
-            todoList.listItems = it as List<TodoItem>
-            todoListOverviewAdapter.notifyItemChanged(todoLists.indexOf(todoList))
-          })
-        }
-      })
-    }
+      todoListOverviewAdapter.todoLists = todoLists as MutableList<TodoList>
+      todoListOverviewAdapter.notifyItemRangeChanged(0, todoLists.size)
+
+      todoListOverviewAdapter.todoLists.forEach { todoList ->
+        todoListOverViewViewModel.getTodoListItems(todoList.id)
+                .observe(this, Observer<List<TodoItem>> { todoItems: List<TodoItem>? ->
+                  val items = todoItems as List<TodoItem>
+
+                  todoList.listItems = items
+
+                  if (todoListOverviewAdapter.todoLists.indexOf(todoList) >= 0) {
+                    todoListOverviewAdapter.notifyItemChanged(todoListOverviewAdapter.todoLists.indexOf(todoList))
+                  }
+                })
+      }
+    })
+
 
     addTodoButton.setOnClickListener {
       newTodoBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -91,20 +107,17 @@ class TodoListOverviewFragment : LifecycleFragment() {
           context.closeKeyboard(it.windowToken)
           newTodoBottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
-          val todoList = TodoList(0, it.text.toString())
-
-          todoListOverViewViewModel.createTodoList(todoList, {
-            todoList.id = it
-            todoListListener.OnTodoListCreated(todoList)
+          todoListOverViewViewModel.createTodoList(it.text.toString(), {
+            todoListListener.OnTodoListCreated(it)
           })
 
           it.setText("")
         }
       }
-
     }
 
-    return view
+
+    return fragmentView
   }
 
   override fun onAttach(activity: Activity?) {
