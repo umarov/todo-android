@@ -10,10 +10,10 @@ interface TodoListDao {
   @Query("SELECT * FROM todo_lists")
   fun getTodoLists(): LiveData<List<TodoList>>
 
-  @Query("SELECT * FROM todo_items WHERE todo_items.todo_list_id = :p0")
+  @Query("SELECT * FROM todo_items WHERE todo_items.todo_list_id = :id")
   fun getTodoItems(id: Long): LiveData<List<TodoItem>>
 
-  @Query("SELECT * FROM todo_lists WHERE todo_lists.id = :p0")
+  @Query("SELECT * FROM todo_lists WHERE todo_lists.id = :id")
   fun getTodoList(id: Long): LiveData<TodoList>
 
   @Insert(onConflict = OnConflictStrategy.REPLACE)

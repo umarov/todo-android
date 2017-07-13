@@ -6,7 +6,6 @@ import android.support.v7.widget.AppCompatCheckBox
 import android.support.v7.widget.CardView
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,7 @@ import com.mumarov.todo.todo.database.entities.TodoList
 class TodoListOverviewAdapter(
         var todoLists: MutableList<TodoList>,
         val context: Context,
-        inline val onTodoDeleted: (todoList: TodoList) -> Unit,
+        inline val onTodoDeleted: (todoList: TodoList, afterDelete: () -> Unit) -> Unit,
         inline val onTodoClicked: (
                 todoList: TodoList,
                 index: Int
@@ -46,8 +45,11 @@ class TodoListOverviewAdapter(
       viewHolder.toolbar.setOnMenuItemClickListener {
         when (it.itemId) {
           R.id.todo_list_delete_menu -> {
-            onTodoDeleted(todoList)
-            todoLists.removeAt(todoLists.indexOf(todoList))
+            onTodoDeleted(todoList) {
+              val index = todoLists.indexOf(todoList)
+              todoLists.remove(todoList)
+              notifyItemRemoved(index)
+            }
           }
         }
         true
@@ -75,23 +77,23 @@ class TodoListOverviewAdapter(
     val inflater = LayoutInflater.from(context)
 
     val todoListItem = inflater.inflate(R.layout.todo_list_overview_list_item, parent, false)
-    val cardLinearLayout = todoListItem.findViewById(R.id.todo_list_card_linear_layout) as LinearLayout
+    val cardLinearLayout = todoListItem.findViewById<LinearLayout>(R.id.todo_list_card_linear_layout)
     val viewHolder = ViewHolder(todoListItem, cardLinearLayout)
 
     return viewHolder
   }
 
   class ViewHolder(itemView: View, val cardLinearLayout: LinearLayout) : RecyclerView.ViewHolder(itemView) {
-    val titleTextView by lazy {
-      itemView.findViewById(R.id.todo_list_title) as TextView
+    val titleTextView: TextView by lazy {
+      itemView.findViewById<TextView>(R.id.todo_list_title)
     }
 
-    val cardView by lazy {
-      itemView.findViewById(R.id.todo_list_card_view) as CardView
+    val cardView: CardView by lazy {
+      itemView.findViewById<CardView>(R.id.todo_list_card_view)
     }
 
-    val toolbar by lazy {
-      itemView.findViewById(R.id.todo_list_list_toolbar) as Toolbar
+    val toolbar: Toolbar by lazy {
+      itemView.findViewById<Toolbar>(R.id.todo_list_list_toolbar)
     }
 
     init {

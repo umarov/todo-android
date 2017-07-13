@@ -1,18 +1,16 @@
 package com.mumarov.todo.todo
 
 import android.os.Bundle
-import android.support.transition.AutoTransition
-import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.CardView
 import android.support.v7.widget.Toolbar
-import android.transition.*
+import android.transition.Slide
 import com.mumarov.todo.todo.database.entities.TodoList
 import com.mumarov.todo.todo.ui.todo_list_detail.TodoListDetailFragment
 import com.mumarov.todo.todo.ui.todo_list_overview.TodoListOverviewFragment
 
 class MainActivity : AppCompatActivity(), TodoListOverviewFragment.TodoListListener {
-  val myToolbar: Toolbar by lazy { findViewById(R.id.my_toolbar) as Toolbar }
+  val myToolbar: Toolbar by lazy { findViewById<Toolbar>(R.id.my_toolbar) }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
