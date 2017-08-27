@@ -1,7 +1,5 @@
 package com.mumarov.todo.todo.di
 
-import android.app.Application
-import android.arch.persistence.room.Room
 import android.content.Context
 import com.mumarov.todo.todo.database.TodoAppDatabase
 import com.mumarov.todo.todo.database.dao.TodoItemDao

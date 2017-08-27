@@ -26,7 +26,7 @@ class TodoListDetailFragment : LifecycleFragment() {
                             savedInstanceState: Bundle?): View {
 
     val todoListOverviewFragment = inflater.inflate(R.layout.fragment_todo_list_detail, container, false)
-    val todoListItemsRecyclerView = todoListOverviewFragment.findViewById(R.id.todo_list_items_recycler_view) as RecyclerView
+    val todoListItemsRecyclerView = todoListOverviewFragment.findViewById<RecyclerView>(R.id.todo_list_items_recycler_view)
 
 
     val todoListDetailViewModel = ViewModelProviders.of(this).get(TodoListDetailViewModel::class.java)
