@@ -2,9 +2,9 @@ package com.mumarov.todo.todo.di
 
 
 import com.mumarov.todo.todo.ui.todo_list_detail.TodoListDetailViewModel
+import com.mumarov.todo.todo.ui.todo_list_overview.TodoListOverviewViewModel
 import dagger.Component
 import javax.inject.Singleton
-import com.mumarov.todo.todo.ui.todo_list_overview.TodoListOverviewViewModel
 
 @Singleton
 @Component(modules = arrayOf(

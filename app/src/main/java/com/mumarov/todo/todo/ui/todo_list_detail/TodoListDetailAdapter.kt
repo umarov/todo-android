@@ -144,31 +144,31 @@ class TodoListDetailAdapter(
 
   class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val todoListDetailItemTextView: TextView by lazy {
-      itemView.findViewById(R.id.todo_list_detail_item_text_view) as TextView
+      itemView.findViewById<TextView>(R.id.todo_list_detail_item_text_view)
     }
 
     val todoListDetailItemCheckBox: CheckBox by lazy {
-      itemView.findViewById(R.id.todo_list_detail_item_check_box) as CheckBox
+      itemView.findViewById<CheckBox>(R.id.todo_list_detail_item_check_box)
     }
 
     val todoListDetailItemEditLayout: ConstraintLayout by lazy {
-      itemView.findViewById(R.id.todo_list_item_edit_layout) as ConstraintLayout
+      itemView.findViewById<ConstraintLayout>(R.id.todo_list_item_edit_layout)
     }
 
     val todoListDetailItemEditSaveButton: AppCompatImageButton by lazy {
-      itemView.findViewById(R.id.todo_list_item_edit_save_button) as AppCompatImageButton
+      itemView.findViewById<AppCompatImageButton>(R.id.todo_list_item_edit_save_button)
     }
 
     val todoListDetailItemEditTextLayout: TextInputEditText by lazy {
-      itemView.findViewById(R.id.todo_list_item_edit_input_edit_text) as TextInputEditText
+      itemView.findViewById<TextInputEditText>(R.id.todo_list_item_edit_input_edit_text)
     }
 
     val todoListDetailDeleteItemButton: AppCompatImageButton by lazy {
-      itemView.findViewById(R.id.todo_list_item_delete_button) as AppCompatImageButton
+      itemView.findViewById<AppCompatImageButton>(R.id.todo_list_item_delete_button)
     }
 
     val todoListDetailItemViewLayout: ConstraintLayout by lazy {
-      itemView.findViewById(R.id.todo_list_item_view_layout) as ConstraintLayout
+      itemView.findViewById<ConstraintLayout>(R.id.todo_list_item_view_layout)
     }
 
     fun toggleEditCreate() {

@@ -4,10 +4,8 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.mumarov.todo.todo.TodoApplication
 import com.mumarov.todo.todo.database.TodoAppDatabase
-import com.mumarov.todo.todo.database.entities.TodoItem
 import com.mumarov.todo.todo.database.entities.TodoList
 import javax.inject.Inject
 
@@ -30,10 +28,11 @@ class TodoListOverviewViewModel constructor(application: Application) : AndroidV
     }).start()
   }
 
-  fun deleteTodoList(todoList: TodoList) {
+  inline fun deleteTodoList(todoList: TodoList, crossinline afterDelete: () -> Unit) {
     Thread(Runnable {
       db.todoItemDao().deleteTodoItems(todoList.listItems)
       db.todoListDao().deleteTodoList(todoList)
+      Handler(Looper.getMainLooper()).post { afterDelete() }
     }).start()
   }
 
